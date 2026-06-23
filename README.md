@@ -18,7 +18,7 @@ Sleepwell adalah aplikasi desktop berbasis **Java GUI** dan **MySQL** yang diran
 
 ## 👥 Tim Pengembang
 
-Aplikasi ini dibangun sebagai tugas mata kuliah pada program studi Teknik Informatika, Universitas Pamulang.
+Aplikasi ini dibangun sebagai tugas mata kuliah Pemrograman 1 pada program studi Teknik Informatika, Universitas Pamulang.
 
 | Nama Lengkap | NIM | Peran Utama | Deskripsi Tugas |
 | :--- | :--- | :--- | :--- |

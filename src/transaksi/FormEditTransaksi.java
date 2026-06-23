@@ -1,0 +1,707 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+package transaksi;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import javax.swing.JOptionPane;
+import koneksi.koneksi;
+
+/**
+ *
+ * @author user
+ */
+public class FormEditTransaksi extends javax.swing.JFrame {
+    private String idReservasiYangDiedit;
+    /**
+     * Creates new form FormTransaksi
+     */
+    public FormEditTransaksi(String id) {
+        initComponents();
+        setLocationRelativeTo(null);
+        
+        // Simpan ID yang dikirim dari form sebelumnya
+        this.idReservasiYangDiedit = id; 
+        
+        jComboBox3.removeAllItems();
+        jComboBox3.addItem("Belum Bayar");
+        jComboBox3.addItem("Lunas");
+        
+        isiComboTamu();
+        isiComboKamar();
+        
+        // Panggil method untuk menampilkan data lama ke layar
+        tampilDataLama();
+    }
+    
+    private void isiComboTamu() {
+    try {
+        Connection conn = koneksi.getkoneksi();
+        String sql = "SELECT id_tamu, nama_tamu FROM tamu";
+        PreparedStatement pst = conn.prepareStatement(sql);
+        ResultSet rs = pst.executeQuery();
+
+        jComboBox1.removeAllItems();
+        jComboBox1.addItem("-- Pilih Tamu --");
+
+        while (rs.next()) {
+            jComboBox1.addItem(
+                rs.getString("id_tamu") + " - " + rs.getString("nama_tamu")
+            );
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Gagal mengambil data tamu: " + e.getMessage());
+    }
+}
+    
+    private void tampilDataLama() {
+        try {
+            java.sql.Connection conn = koneksi.getkoneksi();
+            String sql = "SELECT * FROM reservasi WHERE id_reservasi = ?";
+            java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, idReservasiYangDiedit);
+            java.sql.ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                // 1. Munculkan ID Transaksi otomatis
+                jTextField1.setText(idReservasiYangDiedit);
+
+                // 2. AUTO-FILL TAMU (Mencari ID di dalam jComboBox1)
+                String idTamu = rs.getString("id_tamu");
+                for (int i = 0; i < jComboBox1.getItemCount(); i++) {
+                    if (jComboBox1.getItemAt(i).toString().startsWith(idTamu + " -")) {
+                        jComboBox1.setSelectedIndex(i);
+                        break; // Hentikan pencarian jika sudah ketemu
+                    }
+                }
+
+                // 3. AUTO-FILL KAMAR (Mencari ID di dalam jComboBox2)
+                String idKamar = rs.getString("id_kamar");
+                for (int i = 0; i < jComboBox2.getItemCount(); i++) {
+                    if (jComboBox2.getItemAt(i).toString().startsWith(idKamar + " -")) {
+                        jComboBox2.setSelectedIndex(i);
+                        break;
+                    }
+                }
+
+                // 4. Set Tanggal Check-in & Check-out
+                jDateChooser1.setDate(rs.getDate("tanggal_checkin"));
+                jDateChooser2.setDate(rs.getDate("tanggal_checkout"));
+                
+                // 5. Set Total Biaya
+                jTextField4.setText(rs.getString("total_bayar"));
+                
+                // 6. Set Status Pembayaran otomatis
+                String statusBayar = rs.getString("status_pembayaran");
+                if (statusBayar != null) {
+                    jComboBox3.setSelectedItem(statusBayar);
+                }
+                
+                // 7. Set Status Reservasi otomatis 
+                String statusReservasi = rs.getString("status_reservasi");
+                if (statusReservasi != null) {
+                    jComboBox4.setSelectedItem(statusReservasi);
+                }
+            }
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Gagal memuat data lama: " + e.getMessage());
+        }
+    }
+
+    private void isiComboKamar() {
+        try {
+            java.sql.Connection conn = koneksi.getkoneksi();
+            // Menampilkan kamar 'Tersedia' ATAU kamar yang sedang dipakai oleh ID Reservasi ini
+            String sql = "SELECT id_kamar, nomor_kamar FROM kamar WHERE status_kamar='Tersedia' OR id_kamar = (SELECT id_kamar FROM reservasi WHERE id_reservasi=?)";
+            java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, idReservasiYangDiedit); // Mengambil ID dari variabel global
+            java.sql.ResultSet rs = pst.executeQuery();
+
+            jComboBox2.removeAllItems();
+            jComboBox2.addItem("-- Pilih Kamar --");
+
+            while (rs.next()) {
+                jComboBox2.addItem(rs.getString("id_kamar") + " - " + rs.getString("nomor_kamar"));
+            }
+        } catch (Exception e) {
+            System.out.println("Gagal memuat combobox kamar: " + e.getMessage());
+        }
+    }
+
+    private String ambilIdCombo(javax.swing.JComboBox combo) {
+        String data = combo.getSelectedItem().toString();
+        return data.split(" - ")[0];
+    }
+
+    private void ambilNamaTamu() {
+        try {
+            if (jComboBox1.getSelectedIndex() <= 0) {
+                jTextField2.setText("");
+                return;
+            }
+
+            String idTamu = ambilIdCombo(jComboBox1);
+
+            Connection conn = koneksi.getkoneksi();
+            String sql = "SELECT nama_tamu FROM tamu WHERE id_tamu=?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, idTamu);
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                jTextField2.setText(rs.getString("nama_tamu"));
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal mengambil nama tamu: " + e.getMessage());
+        }
+    }
+
+    private void ambilHargaKamar() {
+        try {
+            if (jComboBox2.getSelectedIndex() <= 0) {
+                jTextField3.setText("");
+                return;
+            }
+            
+            String idKamar = ambilIdCombo(jComboBox2);
+            
+            Connection conn = koneksi.getkoneksi();
+            String sql = "SELECT harga_per_malam FROM kamar WHERE id_kamar=?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, idKamar);
+            ResultSet rs = pst.executeQuery();
+            
+            if (rs.next()) {
+                jTextField3.setText(rs.getString("harga_per_malam"));
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal mengambil harga kamar: " + e.getMessage());
+        }
+    }
+
+    private int hitungBiaya() {
+        if (jTextField3.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Harga kamar belum ada!");
+            return 0;
+        }
+        
+        if (jDateChooser1.getDate() == null || jDateChooser2.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Tanggal check-in dan check-out harus diisi!");
+            return 0;
+        }
+        
+        long checkIn = jDateChooser1.getDate().getTime();
+        long checkOut = jDateChooser2.getDate().getTime();
+
+        long selisih = checkOut - checkIn;
+        int jumlahMalam = (int) (selisih / (1000 * 60 * 60 * 24));
+        
+        if (jumlahMalam <= 0) {
+            JOptionPane.showMessageDialog(this, "Tanggal check-out harus lebih besar dari check-in!");
+            return 0;
+        }
+        
+        try {
+            // PERBAIKAN: Ambil sebagai Double dulu untuk membaca ".00", lalu ubah ke integer (int)
+            double hargaDesimal = Double.parseDouble(jTextField3.getText());
+            int harga = (int) hargaDesimal;
+            
+            int total = harga * jumlahMalam;
+            
+            jTextField4.setText(String.valueOf(total));
+            return total;
+            
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Format harga salah atau tidak valid!");
+            return 0;
+        }
+    }
+    
+    private void bersihkanForm() {
+        // Mengembalikan ComboBox ke pilihan default (index 0)
+        if (jComboBox1.getItemCount() > 0) jComboBox1.setSelectedIndex(0);
+        if (jComboBox2.getItemCount() > 0) jComboBox2.setSelectedIndex(0);
+        if (jComboBox3.getItemCount() > 0) jComboBox3.setSelectedIndex(0);
+        
+        // Mengosongkan semua kolom teks (TextField)
+        jTextField1.setText(""); // Misal: ID Transaksi
+        jTextField2.setText(""); // Misal: Nama / Detail
+        jTextField3.setText(""); // Harga
+        jTextField4.setText(""); // Total Biaya
+        
+        // Mengosongkan tanggal (JDateChooser)
+        jDateChooser1.setDate(null); // Tanggal Check-in
+        jDateChooser2.setDate(null); // Tanggal Check-out
+    }
+
+    
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel2 = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jTextField4 = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jComboBox3 = new javax.swing.JComboBox<>();
+        jTextField2 = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
+        jLabel12 = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
+        jTextField3 = new javax.swing.JTextField();
+        jTextField1 = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        jComboBox2 = new javax.swing.JComboBox<>();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        jDateChooser2 = new com.toedter.calendar.JDateChooser();
+        jLabel4 = new javax.swing.JLabel();
+        jComboBox4 = new javax.swing.JComboBox<>();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(245, 242, 250));
+
+        jPanel2.setBackground(new java.awt.Color(245, 242, 250));
+
+        jLabel6.setText("Nama Tamu :");
+
+        jLabel9.setText("Tgl Check-Out");
+
+        jLabel7.setText("Pilih Tamu :");
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
+
+        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField2ActionPerformed(evt);
+            }
+        });
+
+        jButton1.setBackground(new java.awt.Color(46, 204, 113));
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
+        jButton1.setText("UPDATE DATA");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jLabel12.setText("Pilih Kamar :");
+
+        jButton3.setBackground(new java.awt.Color(102, 102, 255));
+        jButton3.setForeground(new java.awt.Color(255, 255, 255));
+        jButton3.setText("HITUNG BIAYA");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("ID Transaksi :");
+
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox2ActionPerformed(evt);
+            }
+        });
+
+        jLabel8.setText("Tgl Check-In");
+
+        jLabel13.setText("Harga/Mlm :");
+
+        jLabel10.setText("Total Biaya :");
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(44, 62, 80));
+        jLabel3.setText("Edit Transaksi Check-In");
+
+        jLabel11.setText("Status Bayar :");
+
+        jButton5.setBackground(new java.awt.Color(44, 62, 80));
+        jButton5.setForeground(new java.awt.Color(255, 255, 255));
+        jButton5.setText("DASHBOARD");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
+        jButton6.setBackground(new java.awt.Color(0, 102, 153));
+        jButton6.setForeground(new java.awt.Color(255, 255, 255));
+        jButton6.setText("LIHAT TRANSAKSI");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setText("Status Reservasi :");
+
+        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Check-in", "Check-out", "Batal" }));
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jDateChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
+                                    .addComponent(jDateChooser2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(150, 150, 150))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
+                                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(36, 36, 36))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(jButton1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap())))
+            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel2Layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel12, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel8, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jLabel5)
+                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jTextField3)
+                        .addComponent(jComboBox2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jTextField4)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jComboBox1, 0, 240, Short.MAX_VALUE)
+                        .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE))
+                    .addGap(186, 186, 186)))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 197, Short.MAX_VALUE)
+                .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jDateChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9))
+                .addGap(39, 39, 39)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel11)
+                        .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(10, 10, 10)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(30, 30, 30)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton5)
+                    .addComponent(jButton6))
+                .addContainerGap())
+            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel2Layout.createSequentialGroup()
+                    .addGap(44, 44, 44)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addComponent(jLabel5)
+                            .addGap(37, 37, 37))
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel7))))
+                    .addGap(6, 6, 6)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel6)
+                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(21, 21, 21)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel12)
+                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(6, 6, 6)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel13)
+                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(24, 24, 24)
+                    .addComponent(jLabel8)
+                    .addGap(47, 47, 47)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel10)
+                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addContainerGap(136, Short.MAX_VALUE)))
+        );
+
+        jPanel1.setBackground(new java.awt.Color(44, 62, 80));
+        jPanel1.setPreferredSize(new java.awt.Dimension(329, 84));
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("SLEEPWELL");
+
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Sistem Reservasi Hotel");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(201, 201, 201))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(186, 186, 186))))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2)
+                .addContainerGap(15, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 553, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String tglCheckIn = sdf.format(jDateChooser1.getDate());
+            String tglCheckOut = sdf.format(jDateChooser2.getDate());
+            
+            String idTamu = ambilIdCombo(jComboBox1);
+            String idKamar = ambilIdCombo(jComboBox2);
+            double totalDesimal = Double.parseDouble(jTextField4.getText().trim());
+            int total = (int) totalDesimal;
+            
+            // Ambil status dari kedua ComboBox
+            String statusBayar = jComboBox3.getSelectedItem().toString();
+            String statusReservasi = jComboBox4.getSelectedItem().toString(); 
+
+            Connection conn = koneksi.getkoneksi();
+            
+            // Query UPDATE ditambah dengan status_reservasi (8 Parameter)
+            String sql = "UPDATE reservasi SET id_tamu=?, id_kamar=?, tanggal_checkin=?, tanggal_checkout=?, total_bayar=?, status_pembayaran=?, status_reservasi=? WHERE id_reservasi=?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            
+            pst.setString(1, idTamu);
+            pst.setString(2, idKamar);
+            pst.setString(3, tglCheckIn);
+            pst.setString(4, tglCheckOut);
+            pst.setInt(5, total);
+            pst.setString(6, statusBayar);
+            pst.setString(7, statusReservasi);     // Menyimpan Check-in/Check-out
+            pst.setString(8, idReservasiYangDiedit); // ID berada di parameter ke-8 sekarang
+            
+            pst.executeUpdate();
+            
+            // LOGIKA PINTAR: Jika tamu Check-out atau Batal, kamar langsung diubah jadi 'Tersedia'
+            if (statusReservasi.equals("Check-out") || statusReservasi.equals("Batal")) {
+                String updateKamar = "UPDATE kamar SET status_kamar='Tersedia' WHERE id_kamar=?";
+                PreparedStatement pstKamar = conn.prepareStatement(updateKamar);
+                pstKamar.setString(1, idKamar);
+                pstKamar.executeUpdate();
+            }
+
+            JOptionPane.showMessageDialog(this, "Data transaksi berhasil diupdate!");
+            
+            FormLihatTransaksi lihat = new FormLihatTransaksi();
+            lihat.setVisible(true);
+            this.dispose();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal mengupdate data: " + e.getMessage());
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        
+        hitungBiaya();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        // TODO add your handling code here:
+        
+        ambilNamaTamu();
+    }//GEN-LAST:event_jComboBox1ActionPerformed
+
+    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
+        // TODO add your handling code here:
+        ambilHargaKamar();
+    }//GEN-LAST:event_jComboBox2ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+        index.index dashboard = new index.index();
+        dashboard.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        // TODO add your handling code here:
+        // 1. Membuka Form Lihat Transaksi
+        FormLihatTransaksi lihatData = new FormLihatTransaksi();
+        lihatData.setVisible(true);
+        
+        // 2. Menutup Form Transaksi yang sedang terbuka saat ini
+        this.dispose();
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(FormEditTransaksi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(FormEditTransaksi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(FormEditTransaksi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(FormEditTransaksi.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new FormEditTransaksi("").setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JComboBox<String> jComboBox3;
+    private javax.swing.JComboBox<String> jComboBox4;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
+    private com.toedter.calendar.JDateChooser jDateChooser2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTextField4;
+    // End of variables declaration//GEN-END:variables
+}

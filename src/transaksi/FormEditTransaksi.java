@@ -299,6 +299,8 @@ public class FormEditTransaksi extends javax.swing.JFrame {
 
         jLabel9.setText("Tgl Check-Out");
 
+        jTextField4.setEditable(false);
+
         jLabel7.setText("Pilih Tamu :");
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -310,6 +312,7 @@ public class FormEditTransaksi extends javax.swing.JFrame {
 
         jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
+        jTextField2.setEditable(false);
         jTextField2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField2ActionPerformed(evt);
@@ -335,6 +338,8 @@ public class FormEditTransaksi extends javax.swing.JFrame {
                 jButton3ActionPerformed(evt);
             }
         });
+
+        jTextField1.setEditable(false);
 
         jLabel5.setText("ID Transaksi :");
 

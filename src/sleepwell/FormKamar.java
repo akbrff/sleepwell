@@ -153,6 +153,8 @@ public class FormKamar extends javax.swing.JFrame {
 
         jLabel7.setText("Status :");
 
+        jTextField1.setEditable(false);
+
         jTextField3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField3ActionPerformed(evt);

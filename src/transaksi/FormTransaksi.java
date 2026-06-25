@@ -240,6 +240,8 @@ public class FormTransaksi extends javax.swing.JFrame {
 
         jLabel9.setText("Tgl Check-Out");
 
+        jTextField4.setEditable(false);
+
         jLabel7.setText("Pilih Tamu :");
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -348,6 +350,7 @@ public class FormTransaksi extends javax.swing.JFrame {
                                 .addComponent(jButton1)
                                 .addGap(31, 31, 31)
                                 .addComponent(jButton6)
+                                .addGap(0, 0, 0)
                                 .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -424,7 +427,6 @@ public class FormTransaksi extends javax.swing.JFrame {
                         .addGap(73, 73, 73)
                         .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel10))

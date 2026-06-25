@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 23, 2026 at 05:03 PM
+-- Generation Time: Jun 25, 2026 at 03:42 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -55,6 +55,8 @@ CREATE TABLE `reservasi` (
   `tanggal_checkin` date DEFAULT NULL,
   `tanggal_checkout` date DEFAULT NULL,
   `total_bayar` decimal(10,2) DEFAULT NULL,
+  `dp_dibayar` int(11) NOT NULL,
+  `sisa_tagihan` int(11) NOT NULL,
   `status_pembayaran` varchar(20) NOT NULL,
   `status_reservasi` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -63,8 +65,8 @@ CREATE TABLE `reservasi` (
 -- Dumping data for table `reservasi`
 --
 
-INSERT INTO `reservasi` (`id_reservasi`, `id_tamu`, `id_kamar`, `tanggal_checkin`, `tanggal_checkout`, `total_bayar`, `status_pembayaran`, `status_reservasi`) VALUES
-(1, 3, 1, '2026-06-21', '2026-06-23', 2000000.00, 'Lunas', 'Check-out');
+INSERT INTO `reservasi` (`id_reservasi`, `id_tamu`, `id_kamar`, `tanggal_checkin`, `tanggal_checkout`, `total_bayar`, `dp_dibayar`, `sisa_tagihan`, `status_pembayaran`, `status_reservasi`) VALUES
+(1, 3, 1, '2026-06-21', '2026-06-23', 2000000.00, 0, 0, 'Lunas', 'Check-out');
 
 -- --------------------------------------------------------
 
@@ -125,7 +127,7 @@ ALTER TABLE `kamar`
 -- AUTO_INCREMENT for table `reservasi`
 --
 ALTER TABLE `reservasi`
-  MODIFY `id_reservasi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_reservasi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tamu`

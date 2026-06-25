@@ -31,6 +31,12 @@ public class FormEditTransaksi extends javax.swing.JFrame {
         jComboBox3.addItem("Belum Bayar");
         jComboBox3.addItem("Lunas");
         
+        jComboBox4.removeAllItems();
+        jComboBox4.addItem("Booking");
+        jComboBox4.addItem("Check-in");
+        jComboBox4.addItem("Check-out");
+        jComboBox4.addItem("Batal");
+        
         isiComboTamu();
         isiComboKamar();
         
@@ -94,6 +100,8 @@ public class FormEditTransaksi extends javax.swing.JFrame {
                 
                 // 5. Set Total Biaya
                 jTextField4.setText(rs.getString("total_bayar"));
+                jTextField5.setText(rs.getString("dp_dibayar"));
+                jTextField6.setText(rs.getString("sisa_tagihan"));
                 
                 // 6. Set Status Pembayaran otomatis
                 String statusBayar = rs.getString("status_pembayaran");
@@ -274,6 +282,10 @@ public class FormEditTransaksi extends javax.swing.JFrame {
         jDateChooser2 = new com.toedter.calendar.JDateChooser();
         jLabel4 = new javax.swing.JLabel();
         jComboBox4 = new javax.swing.JComboBox<>();
+        jLabel16 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        jTextField5 = new javax.swing.JTextField();
+        jTextField6 = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -367,6 +379,18 @@ public class FormEditTransaksi extends javax.swing.JFrame {
 
         jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Check-in", "Check-out", "Batal" }));
 
+        jLabel16.setText("Sisa Tagihan :");
+
+        jLabel15.setText("Down Payment :");
+
+        jTextField5.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField5KeyReleased(evt);
+            }
+        });
+
+        jTextField6.setEditable(false);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -380,16 +404,29 @@ public class FormEditTransaksi extends javax.swing.JFrame {
                                 .addComponent(jLabel3)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jDateChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
                                     .addComponent(jDateChooser2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addGap(150, 150, 150))
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                            .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                            .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
                                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(36, 36, 36))
@@ -414,7 +451,6 @@ public class FormEditTransaksi extends javax.swing.JFrame {
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel12, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel8, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addComponent(jLabel5)
                         .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -425,8 +461,8 @@ public class FormEditTransaksi extends javax.swing.JFrame {
                         .addComponent(jComboBox2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jTextField4)
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jComboBox1, 0, 240, Short.MAX_VALUE)
-                        .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE))
+                        .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jTextField2))
                     .addGap(186, 186, 186)))
         );
         jPanel2Layout.setVerticalGroup(
@@ -434,18 +470,29 @@ public class FormEditTransaksi extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 197, Short.MAX_VALUE)
-                .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 200, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jDateChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel9))
-                .addGap(39, 39, 39)
+                .addGap(54, 54, 54)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel11)
-                        .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel15))
+                        .addGap(5, 5, 5)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel16))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel11)
+                            .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(10, 10, 10)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
@@ -481,9 +528,7 @@ public class FormEditTransaksi extends javax.swing.JFrame {
                     .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel13)
                         .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGap(24, 24, 24)
-                    .addComponent(jLabel8)
-                    .addGap(47, 47, 47)
+                    .addGap(87, 87, 87)
                     .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel10)
                         .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -549,54 +594,88 @@ public class FormEditTransaksi extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String tglCheckIn = sdf.format(jDateChooser1.getDate());
-            String tglCheckOut = sdf.format(jDateChooser2.getDate());
-            
-            String idTamu = ambilIdCombo(jComboBox1);
-            String idKamar = ambilIdCombo(jComboBox2);
-            double totalDesimal = Double.parseDouble(jTextField4.getText().trim());
-            int total = (int) totalDesimal;
-            
-            // Ambil status dari kedua ComboBox
-            String statusBayar = jComboBox3.getSelectedItem().toString();
-            String statusReservasi = jComboBox4.getSelectedItem().toString(); 
+        if (jDateChooser1.getDate() == null || jDateChooser2.getDate() == null) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Tanggal Check-in dan Check-out harus diisi!");
+        return;
+        }
 
-            Connection conn = koneksi.getkoneksi();
-            
-            // Query UPDATE ditambah dengan status_reservasi (8 Parameter)
-            String sql = "UPDATE reservasi SET id_tamu=?, id_kamar=?, tanggal_checkin=?, tanggal_checkout=?, total_bayar=?, status_pembayaran=?, status_reservasi=? WHERE id_reservasi=?";
-            PreparedStatement pst = conn.prepareStatement(sql);
-            
-            pst.setString(1, idTamu);
-            pst.setString(2, idKamar);
-            pst.setString(3, tglCheckIn);
-            pst.setString(4, tglCheckOut);
-            pst.setInt(5, total);
-            pst.setString(6, statusBayar);
-            pst.setString(7, statusReservasi);     // Menyimpan Check-in/Check-out
-            pst.setString(8, idReservasiYangDiedit); // ID berada di parameter ke-8 sekarang
-            
-            pst.executeUpdate();
-            
-            // LOGIKA PINTAR: Jika tamu Check-out atau Batal, kamar langsung diubah jadi 'Tersedia'
-            if (statusReservasi.equals("Check-out") || statusReservasi.equals("Batal")) {
-                String updateKamar = "UPDATE kamar SET status_kamar='Tersedia' WHERE id_kamar=?";
-                PreparedStatement pstKamar = conn.prepareStatement(updateKamar);
-                pstKamar.setString(1, idKamar);
-                pstKamar.executeUpdate();
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        String tglMasukBaru = sdf.format(jDateChooser1.getDate());
+        String tglKeluarBaru = sdf.format(jDateChooser2.getDate());
+
+        // Ambil nilai dari field
+        String tamuDipilih = jComboBox1.getSelectedItem().toString();
+        String kamarDipilih = jComboBox2.getSelectedItem().toString();
+        String totalBiaya = jTextField4.getText();
+        String dpBayar = jTextField5.getText();
+        String sisaTagihan = jTextField6.getText();
+        String statusBayar = jComboBox3.getSelectedItem().toString();
+        String statusReservasi = jComboBox4.getSelectedItem().toString();
+
+        if (tamuDipilih.contains("--") || kamarDipilih.contains("--")) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Silakan pilih Tamu dan Kamar!");
+            return;
+        }
+
+        String[] splitTamu = tamuDipilih.split(" - ");
+        String idTamu = splitTamu[0];
+
+        String[] splitKamar = kamarDipilih.split(" - ");
+        String idKamarBaru = splitKamar[0];
+
+        try {
+            java.sql.Connection conn = koneksi.getkoneksi();
+
+            // 1. Validasi Bentrok (Mengabaikan id_reservasi yang sedang diedit)
+            String sqlCek = "SELECT * FROM reservasi WHERE id_kamar=? AND status_reservasi IN ('Check-in', 'Booking') AND id_reservasi != ? AND (tanggal_checkin < ? AND tanggal_checkout > ?)";
+            java.sql.PreparedStatement pstCek = conn.prepareStatement(sqlCek);
+            pstCek.setString(1, idKamarBaru);
+            pstCek.setString(2, idReservasiYangDiedit);
+            pstCek.setString(3, tglKeluarBaru);
+            pstCek.setString(4, tglMasukBaru);
+
+            java.sql.ResultSet rsCek = pstCek.executeQuery();
+            if (rsCek.next()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "GAGAL UPDATE! Kamar sudah dipesan orang lain di tanggal tersebut.", "Peringatan", javax.swing.JOptionPane.WARNING_MESSAGE);
+                return; 
             }
 
-            JOptionPane.showMessageDialog(this, "Data transaksi berhasil diupdate!");
-            
-            FormLihatTransaksi lihat = new FormLihatTransaksi();
-            lihat.setVisible(true);
+            // 2. Update Transaksi (Menambahkan dp_dibayar dan sisa_tagihan)
+            String sqlUpdate = "UPDATE reservasi SET id_tamu=?, id_kamar=?, tanggal_checkin=?, tanggal_checkout=?, total_biaya=?, dp_dibayar=?, sisa_tagihan=?, status_pembayaran=?, status_reservasi=? WHERE id_reservasi=?";
+            java.sql.PreparedStatement pstUpdate = conn.prepareStatement(sqlUpdate);
+            pstUpdate.setString(1, idTamu);
+            pstUpdate.setString(2, idKamarBaru);
+            pstUpdate.setString(3, tglMasukBaru);
+            pstUpdate.setString(4, tglKeluarBaru);
+            pstUpdate.setString(5, totalBiaya);
+            pstUpdate.setString(6, dpBayar);
+            pstUpdate.setString(7, sisaTagihan);
+            pstUpdate.setString(8, statusBayar);
+            pstUpdate.setString(9, statusReservasi);
+            pstUpdate.setString(10, idReservasiYangDiedit);
+            pstUpdate.executeUpdate();
+
+            // 3. Update Status Kamar
+            String statusKamarBaru = "Tersedia"; 
+            if (statusReservasi.equals("Check-in")) statusKamarBaru = "Terisi";
+            else if (statusReservasi.equals("Booking")) statusKamarBaru = "Booking";
+
+            String sqlKamar = "UPDATE kamar SET status_kamar=? WHERE id_kamar=?";
+            java.sql.PreparedStatement pstKamar = conn.prepareStatement(sqlKamar);
+            pstKamar.setString(1, statusKamarBaru);
+            pstKamar.setString(2, idKamarBaru);
+            pstKamar.executeUpdate();
+
+            javax.swing.JOptionPane.showMessageDialog(this, "Data berhasil diperbarui!");
+
+            FormLihatTransaksi flt = new FormLihatTransaksi();
+            flt.setVisible(true);
             this.dispose();
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal mengupdate data: " + e.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(this, "Error saat update: " + e.getMessage());
         }
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
@@ -636,6 +715,48 @@ public class FormEditTransaksi extends javax.swing.JFrame {
         // 2. Menutup Form Transaksi yang sedang terbuka saat ini
         this.dispose();
     }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jTextField5KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField5KeyReleased
+        // TODO add your handling code here:
+        try {
+
+            String strTotal = jTextField4.getText();
+            String strDP = jTextField5.getText();
+
+            // Cek jika field total biaya kosong, jangan dihitung
+            if (strTotal.isEmpty()) {
+                return;
+            }
+
+            if (strDP.isEmpty()) {
+                strDP = "0";
+            }
+
+            int totalBiaya = Integer.parseInt(strTotal);
+            int dp = Integer.parseInt(strDP);
+
+            // Rumus hitung sisa
+            int sisa = totalBiaya - dp;
+
+            // Jika DP lebih besar dari total, sisa dianggap 0 (Lunas)
+            if (sisa < 0) sisa = 0;
+
+            // Tampilkan hasil ke jTextField6
+            jTextField6.setText(String.valueOf(sisa));
+
+            // Logika Status Bayar (jComboBox3)
+            if (dp == 0) {
+                jComboBox3.setSelectedItem("Belum Bayar");
+            } else if (dp >= totalBiaya) {
+                jComboBox3.setSelectedItem("Lunas");
+            } else {
+                jComboBox3.setSelectedItem("DP");
+            }
+
+        } catch (NumberFormatException e) {
+            // Jika yang diketik bukan angka, abaikan
+        }
+    }//GEN-LAST:event_jTextField5KeyReleased
 
     /**
      * @param args the command line arguments
@@ -689,6 +810,8 @@ public class FormEditTransaksi extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -703,5 +826,7 @@ public class FormEditTransaksi extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
+    private javax.swing.JTextField jTextField5;
+    private javax.swing.JTextField jTextField6;
     // End of variables declaration//GEN-END:variables
 }

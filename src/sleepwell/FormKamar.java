@@ -226,6 +226,8 @@ public class FormKamar extends javax.swing.JFrame {
             }
         });
 
+        jButton6.setBackground(new java.awt.Color(0, 153, 153));
+        jButton6.setForeground(new java.awt.Color(255, 255, 255));
         jButton6.setText("PRINT");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

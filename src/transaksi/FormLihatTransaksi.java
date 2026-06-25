@@ -116,6 +116,7 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -177,6 +178,8 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
             }
         });
 
+        jButton2.setBackground(new java.awt.Color(241, 196, 15));
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
         jButton2.setText("EDIT");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -184,6 +187,8 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
             }
         });
 
+        jButton3.setBackground(new java.awt.Color(0, 153, 153));
+        jButton3.setForeground(new java.awt.Color(255, 255, 255));
         jButton3.setText("PRINT");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -191,6 +196,8 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
             }
         });
 
+        jButton4.setBackground(new java.awt.Color(0, 102, 153));
+        jButton4.setForeground(new java.awt.Color(255, 255, 255));
         jButton4.setText("TAMBAH TRANSAKSI");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -198,10 +205,21 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
             }
         });
 
+        jButton5.setBackground(new java.awt.Color(231, 76, 60));
+        jButton5.setForeground(new java.awt.Color(255, 255, 255));
         jButton5.setText("HAPUS");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
+            }
+        });
+
+        jButton6.setBackground(new java.awt.Color(0, 153, 153));
+        jButton6.setForeground(new java.awt.Color(255, 255, 255));
+        jButton6.setText("CETAK INVOICE");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
             }
         });
 
@@ -219,7 +237,10 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jButton4))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(jButton6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton4)))
                         .addGap(15, 15, 15)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -244,7 +265,8 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton3)
                     .addComponent(jButton4)
-                    .addComponent(jButton5))
+                    .addComponent(jButton5)
+                    .addComponent(jButton6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -307,9 +329,9 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
                     rs.getString("id_reservasi"),
                     rs.getString("id_tamu"),
                     rs.getString("id_kamar"),
-                    rs.getString("tgl_checkin"),
-                    rs.getString("tgl_checkout"),
-                    rs.getString("total_biaya"),
+                    rs.getString("tanggal_checkin"),
+                    rs.getString("tanggal_checkout"),
+                    rs.getString("total_bayar"),
                     rs.getString("status_pembayaran"),
                     rs.getString("status_reservasi")
                 });
@@ -471,6 +493,133 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        // TODO add your handling code here:
+        // 1. Cek apakah ada baris transaksi yang dipilih
+        int row = jTable1.getSelectedRow();
+        if (row == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Silakan klik/pilih data transaksi di tabel terlebih dahulu!");
+            return;
+        }
+
+        // 2. Ambil data dasar dari tabel
+        String idReservasi = jTable1.getValueAt(row, 0).toString();
+        String idTamu = jTable1.getValueAt(row, 1).toString();
+        String idKamar = jTable1.getValueAt(row, 2).toString();
+        String tglCheckIn = jTable1.getValueAt(row, 3).toString();
+        String tglCheckOut = jTable1.getValueAt(row, 4).toString();
+        String totalBiaya = jTable1.getValueAt(row, 5).toString();
+        String statusBayar = jTable1.getValueAt(row, 6).toString();
+
+        String namaTamu = "-";
+        String nomorKamar = "-";
+        String tipeKamar = "-";
+
+        try {
+            java.sql.Connection conn = koneksi.getkoneksi();
+            
+            // 3. Cari Nama Tamu ke Database berdasarkan ID
+            java.sql.PreparedStatement pstTamu = conn.prepareStatement("SELECT nama_tamu FROM tamu WHERE id_tamu=?");
+            pstTamu.setString(1, idTamu);
+            java.sql.ResultSet rsTamu = pstTamu.executeQuery();
+            if (rsTamu.next()) {
+                namaTamu = rsTamu.getString("nama_tamu");
+            }
+
+            // 4. Cari Detail Kamar (Nomor & Tipe) ke Database berdasarkan ID
+            java.sql.PreparedStatement pstKamar = conn.prepareStatement("SELECT nomor_kamar, tipe_kamar FROM kamar WHERE id_kamar=?");
+            pstKamar.setString(1, idKamar);
+            java.sql.ResultSet rsKamar = pstKamar.executeQuery();
+            if (rsKamar.next()) {
+                nomorKamar = rsKamar.getString("nomor_kamar");
+                tipeKamar = rsKamar.getString("tipe_kamar");
+            }
+
+            // 5. Meracik Desain HTML Invoice (Struk Profesional)
+            StringBuilder html = new StringBuilder();
+            html.append("<html><head><title>Invoice - ").append(idReservasi).append("</title>");
+            html.append("<style>");
+            html.append("body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background: #f9f9f9; padding: 20px; }");
+            html.append(".invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #ddd; background: #fff; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }");
+            html.append(".header { text-align: center; border-bottom: 2px solid #2c3e50; padding-bottom: 20px; margin-bottom: 20px; }");
+            html.append(".header h1 { color: #2c3e50; margin: 0; font-size: 36px; letter-spacing: 2px; }");
+            html.append(".header p { color: #7f8c8d; margin: 5px 0 0 0; font-size: 14px; }");
+            html.append(".info-table { width: 100%; margin-bottom: 30px; }");
+            html.append(".info-table td { padding: 5px; vertical-align: top; font-size: 15px; }");
+            html.append(".details-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }");
+            html.append(".details-table th, .details-table td { padding: 12px; border: 1px solid #ddd; text-align: left; font-size: 15px; }");
+            html.append(".details-table th { background-color: #2c3e50; color: white; }");
+            html.append(".total-row td { font-weight: bold; font-size: 16px; background-color: #ecf0f1; }");
+            
+            // Logika Warna Status (Hijau jika Lunas, Merah jika Belum)
+            String warnaStatus = statusBayar.equalsIgnoreCase("Lunas") ? "#27ae60" : "#e74c3c";
+            html.append(".status { font-weight: bold; color: ").append(warnaStatus).append("; }");
+            
+            html.append(".footer { text-align: center; margin-top: 40px; font-size: 13px; color: #95a5a6; border-top: 1px solid #eee; padding-top: 20px; }");
+            html.append("</style></head><body>");
+
+            html.append("<div class='invoice-box'>");
+            
+            // --- Bagian Kop (Header) ---
+            html.append("<div class='header'>");
+            html.append("<h1>SLEEPWELL HOTEL</h1>");
+            html.append("<p>Jl. Daan Mogot No. 123, Jakarta Raya</p>");
+            html.append("<p>Telp: (021) 12345678 | Email: info@sleepwell.com</p>");
+            html.append("</div>");
+
+            // --- Bagian Info Transaksi & Tamu ---
+            html.append("<table class='info-table'><tr>");
+            html.append("<td><b>INVOICE KEPADA:</b><br><span style='font-size: 18px;'>").append(namaTamu).append("</span><br>ID Tamu: ").append(idTamu).append("</td>");
+            html.append("<td style='text-align: right;'><b>No. Reservasi:</b> #").append(idReservasi).append("<br>");
+            html.append("<b>Tanggal Cetak:</b> ").append(new java.text.SimpleDateFormat("dd MMM yyyy HH:mm").format(new java.util.Date())).append("</td>");
+            html.append("</tr></table>");
+
+            // --- Bagian Detail Tagihan (Tabel) ---
+            html.append("<table class='details-table'>");
+            html.append("<thead><tr><th>Deskripsi Pesanan</th><th>Check-In</th><th>Check-Out</th><th>Subtotal</th></tr></thead>");
+            html.append("<tbody><tr>");
+            html.append("<td>Sewa Kamar Nomor: <b>").append(nomorKamar).append("</b><br><small>Tipe: ").append(tipeKamar).append("</small></td>");
+            html.append("<td>").append(tglCheckIn).append("</td>");
+            html.append("<td>").append(tglCheckOut).append("</td>");
+            html.append("<td>Rp ").append(totalBiaya).append("</td>");
+            html.append("</tr>");
+            
+            // --- Bagian Total & Status ---
+            html.append("<tr class='total-row'><td colspan='3' style='text-align: right;'>TOTAL TAGIHAN</td><td>Rp ").append(totalBiaya).append("</td></tr>");
+            html.append("<tr><td colspan='3' style='text-align: right;'>STATUS PEMBAYARAN</td><td class='status'>").append(statusBayar.toUpperCase()).append("</td></tr>");
+            html.append("</tbody></table>");
+
+            // --- Bagian Footer ---
+            html.append("<div class='footer'>");
+            html.append("<p><i>Terima kasih telah mempercayakan penginapan Anda di Sleepwell Hotel.</i></p>");
+            html.append("</div>");
+
+            html.append("</div></body></html>");
+
+            // 6. Simpan sebagai file HTML unik berdasarkan ID Reservasi
+            java.io.File file = new java.io.File("Invoice_" + idReservasi + ".html");
+            java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(file));
+            bw.write(html.toString());
+            bw.close();
+
+            // 7. Buka di Browser Bawaan untuk siap di-print
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(this, 
+                    "Invoice berhasil dibuat!\n\nApakah Anda ingin membuka struk di Browser sekarang?\n(Di browser, tekan Ctrl+P untuk Print atau Simpan sebagai PDF)", 
+                    "Cetak Invoice Sukses", javax.swing.JOptionPane.YES_NO_OPTION, javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+            if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+                if (java.awt.Desktop.isDesktopSupported()) {
+                    java.awt.Desktop.getDesktop().browse(file.toURI());
+                } else {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Silakan buka file 'Invoice_" + idReservasi + ".html' secara manual di folder project Anda.");
+                }
+            }
+
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mencetak invoice: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton6ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -512,6 +661,7 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

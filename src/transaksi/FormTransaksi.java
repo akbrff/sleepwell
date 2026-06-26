@@ -538,18 +538,22 @@ public class FormTransaksi extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        // 1. Validasi Input Tanggal
         if (jDateChooser1.getDate() == null || jDateChooser2.getDate() == null) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Tanggal Check-in dan Check-out harus diisi!");
-        return;
+            javax.swing.JOptionPane.showMessageDialog(this, "Tanggal Check-in dan Check-out harus diisi!");
+            return;
         }
 
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
         String tglMasuk = sdf.format(jDateChooser1.getDate());
         String tglKeluar = sdf.format(jDateChooser2.getDate());
 
+        // 2. Ambil Inputan
         String tamuDipilih = jComboBox1.getSelectedItem().toString();
         String kamarDipilih = jComboBox2.getSelectedItem().toString();
         String totalBiaya = jTextField4.getText();
+        String dpBayar = jTextField5.getText(); // Pastikan jTextField5 adalah input DP
+        String sisaTagihan = jTextField6.getText(); // Pastikan jTextField6 adalah output Sisa
         String statusBayar = jComboBox3.getSelectedItem().toString();
         String statusReservasi = jComboBox4.getSelectedItem().toString(); 
 
@@ -558,16 +562,13 @@ public class FormTransaksi extends javax.swing.JFrame {
             return;
         }
 
-        String[] splitTamu = tamuDipilih.split(" - ");
-        String idTamu = splitTamu[0];
-
-        String[] splitKamar = kamarDipilih.split(" - ");
-        String idKamar = splitKamar[0];
+        String idTamu = tamuDipilih.split(" - ")[0];
+        String idKamar = kamarDipilih.split(" - ")[0];
 
         try {
             java.sql.Connection conn = koneksi.getkoneksi();
 
-            // Validasi Bentrok Tanggal
+            // 3. Validasi Bentrok Tanggal
             String sqlCek = "SELECT * FROM reservasi WHERE id_kamar=? AND status_reservasi IN ('Check-in', 'Booking') AND (tanggal_checkin < ? AND tanggal_checkout > ?)";
             java.sql.PreparedStatement pstCek = conn.prepareStatement(sqlCek);
             pstCek.setString(1, idKamar);
@@ -580,19 +581,21 @@ public class FormTransaksi extends javax.swing.JFrame {
                 return;
             }
 
-            // Simpan Data
-            String sqlInsert = "INSERT INTO reservasi (id_tamu, id_kamar, tanggal_checkin, tanggal_checkout, total_bayar, status_pembayaran, status_reservasi) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            // 4. Simpan Data (dengan DP & Sisa)
+            String sqlInsert = "INSERT INTO reservasi (id_tamu, id_kamar, tanggal_checkin, tanggal_checkout, total_bayar, dp_dibayar, sisa_tagihan, status_pembayaran, status_reservasi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             java.sql.PreparedStatement pstInsert = conn.prepareStatement(sqlInsert);
             pstInsert.setString(1, idTamu);
             pstInsert.setString(2, idKamar);
             pstInsert.setString(3, tglMasuk);
             pstInsert.setString(4, tglKeluar);
             pstInsert.setString(5, totalBiaya);
-            pstInsert.setString(6, statusBayar);
-            pstInsert.setString(7, statusReservasi);
+            pstInsert.setString(6, dpBayar);
+            pstInsert.setString(7, sisaTagihan);
+            pstInsert.setString(8, statusBayar);
+            pstInsert.setString(9, statusReservasi);
             pstInsert.executeUpdate();
 
-            // Update Kamar
+            // 5. Update Status Kamar
             String statusKamarBaru = statusReservasi.equals("Booking") ? "Booking" : "Terisi"; 
             String sqlKamar = "UPDATE kamar SET status_kamar=? WHERE id_kamar=?";
             java.sql.PreparedStatement pstKamar = conn.prepareStatement(sqlKamar);
@@ -603,9 +606,10 @@ public class FormTransaksi extends javax.swing.JFrame {
             javax.swing.JOptionPane.showMessageDialog(this, "Transaksi berhasil disimpan!");
             isiComboKamar();
             jTextField4.setText(""); 
-
+            jTextField5.setText("");
+            jTextField6.setText("");
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error menyimpan: " + e.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

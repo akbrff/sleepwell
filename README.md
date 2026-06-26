@@ -6,6 +6,7 @@ Sleepwell adalah aplikasi desktop berbasis **Java GUI** dan **MySQL** yang diran
 * **Manajemen Kamar:** Menambah, mengedit, menghapus, dan melihat status ketersediaan kamar secara *real-time*.
 * **Manajemen Tamu:** Pendataan informasi tamu yang menginap.
 * **Sistem Transaksi:** Mengelola alur *Check-in* dan otomatisasi *Check-out* tamu beserta kalkulasi total biayanya.
+* **Pencegahan Double-Booking:** Dilengkapi dengan algoritma validasi tanggal (Check-in & Check-out) untuk mencegah pemesanan tumpang tindih pada kamar yang sama.
 * **Sinkronisasi Otomatis:** Status kamar akan otomatis berubah menjadi "Tersedia" kembali ketika tamu di-*checkout*.
 * **Keamanan Admin:** Otorisasi menggunakan *password* untuk tindakan krusial seperti menghapus atau mengedit data transaksi.
 * **Cetak Laporan:** Fitur *live search* dan ekspor data tabel menjadi laporan berformat HTML/PDF.

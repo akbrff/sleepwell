@@ -9,6 +9,7 @@ Sleepwell adalah aplikasi desktop berbasis **Java GUI** dan **MySQL** yang diran
 * **Sinkronisasi Otomatis:** Status kamar akan otomatis berubah menjadi "Tersedia" kembali ketika tamu di-*checkout*.
 * **Keamanan Admin:** Otorisasi menggunakan *password* untuk tindakan krusial seperti menghapus atau mengedit data transaksi.
 * **Cetak Laporan:** Fitur *live search* dan ekspor data tabel menjadi laporan berformat HTML/PDF.
+* **Cetak Invoice:** Fitur *generate* struk/invoice otomatis dalam format HTML yang responsif, terstruktur, dan siap cetak (terintegrasi langsung dengan *browser* bawaan).
 
 ## 🛠️ Teknologi yang Digunakan
 * **Bahasa Pemrograman:** Java (Visual GUI / Swing)

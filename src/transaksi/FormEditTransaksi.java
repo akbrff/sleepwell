@@ -646,7 +646,7 @@ public class FormEditTransaksi extends javax.swing.JFrame {
             }
 
             // 2. Update Transaksi (Menambahkan dp_dibayar dan sisa_tagihan)
-            String sqlUpdate = "UPDATE reservasi SET id_tamu=?, id_kamar=?, tanggal_checkin=?, tanggal_checkout=?, total_biaya=?, dp_dibayar=?, sisa_tagihan=?, status_pembayaran=?, status_reservasi=? WHERE id_reservasi=?";
+            String sqlUpdate = "UPDATE reservasi SET id_tamu=?, id_kamar=?, tanggal_checkin=?, tanggal_checkout=?, total_bayar=?, dp_dibayar=?, sisa_tagihan=?, status_pembayaran=?, status_reservasi=? WHERE id_reservasi=?";
             java.sql.PreparedStatement pstUpdate = conn.prepareStatement(sqlUpdate);
             pstUpdate.setString(1, idTamu);
             pstUpdate.setString(2, idKamarBaru);

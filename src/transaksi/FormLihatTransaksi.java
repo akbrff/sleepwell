@@ -30,21 +30,23 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
     }
     
     private void tampilData() {
-        DefaultTableModel model = new DefaultTableModel();
+        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel();
         model.addColumn("ID Reservasi");
         model.addColumn("ID Tamu");
         model.addColumn("ID Kamar");
         model.addColumn("Check-In");
         model.addColumn("Check-Out");
         model.addColumn("Total Biaya");
+        model.addColumn("DP Dibayar");    // KOLOM BARU
+        model.addColumn("Sisa Tagihan");  // KOLOM BARU
         model.addColumn("Status Bayar");
         model.addColumn("Status Reservasi");
 
         try {
-            Connection conn = koneksi.getkoneksi(); 
-            Statement st = conn.createStatement();
-            String sql = "SELECT * FROM reservasi ORDER BY id_reservasi DESC"; // Menampilkan data terbaru di atas
-            ResultSet rs = st.executeQuery(sql);
+            java.sql.Connection conn = koneksi.getkoneksi(); 
+            java.sql.Statement st = conn.createStatement();
+            String sql = "SELECT * FROM reservasi ORDER BY id_reservasi DESC"; 
+            java.sql.ResultSet rs = st.executeQuery(sql);
 
             while (rs.next()) {
                 model.addRow(new Object[]{
@@ -53,7 +55,9 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
                     rs.getString("id_kamar"),
                     rs.getString("tanggal_checkin"),
                     rs.getString("tanggal_checkout"),
-                    rs.getString("total_bayar"),
+                    rs.getString("total_bayar"), 
+                    rs.getString("dp_dibayar"),
+                    rs.getString("sisa_tagihan"),
                     rs.getString("status_pembayaran"),
                     rs.getString("status_reservasi")
                 });
@@ -62,7 +66,7 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
             autoFitTable(jTable1);
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal memuat data transaksi: " + e.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(this, "Gagal memuat data transaksi: " + e.getMessage());
         }
     }
     
@@ -301,28 +305,29 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        DefaultTableModel model = new DefaultTableModel();
+        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel();
         model.addColumn("ID Reservasi");
         model.addColumn("ID Tamu");
         model.addColumn("ID Kamar");
         model.addColumn("Check-In");
         model.addColumn("Check-Out");
         model.addColumn("Total Biaya");
+        model.addColumn("DP Dibayar");    // KOLOM BARU
+        model.addColumn("Sisa Tagihan");  // KOLOM BARU
         model.addColumn("Status Bayar");
         model.addColumn("Status Reservasi");
 
         try {
-            Connection conn = koneksi.getkoneksi();
-            // Mencari berdasarkan ID Reservasi, ID Tamu, atau ID Kamar
+            java.sql.Connection conn = koneksi.getkoneksi();
             String sql = "SELECT * FROM reservasi WHERE id_reservasi LIKE ? OR id_tamu LIKE ? OR id_kamar LIKE ?";
-            PreparedStatement pst = conn.prepareStatement(sql);
+            java.sql.PreparedStatement pst = conn.prepareStatement(sql);
             
             String keyword = "%" + jTextField1.getText() + "%";
             pst.setString(1, keyword);
             pst.setString(2, keyword);
             pst.setString(3, keyword);
             
-            ResultSet rs = pst.executeQuery();
+            java.sql.ResultSet rs = pst.executeQuery();
 
             while (rs.next()) {
                 model.addRow(new Object[]{
@@ -331,14 +336,17 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
                     rs.getString("id_kamar"),
                     rs.getString("tanggal_checkin"),
                     rs.getString("tanggal_checkout"),
-                    rs.getString("total_bayar"),
+                    rs.getString("total_bayar"), 
+                    rs.getString("dp_dibayar"),
+                    rs.getString("sisa_tagihan"),
                     rs.getString("status_pembayaran"),
                     rs.getString("status_reservasi")
                 });
             }
             jTable1.setModel(model);
+            autoFitTable(jTable1);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal mencari data: " + e.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(this, "Gagal mencari data: " + e.getMessage());
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -495,38 +503,35 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
-        // 1. Cek apakah ada baris transaksi yang dipilih
         int row = jTable1.getSelectedRow();
         if (row == -1) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Silakan klik/pilih data transaksi di tabel terlebih dahulu!");
+            javax.swing.JOptionPane.showMessageDialog(this, "Silakan pilih data transaksi di tabel terlebih dahulu!");
             return;
         }
 
-        // 2. Ambil data dasar dari tabel
+        // Ambil data dasar dari tabel (INDEKS SUDAH DISESUAIKAN)
         String idReservasi = jTable1.getValueAt(row, 0).toString();
         String idTamu = jTable1.getValueAt(row, 1).toString();
         String idKamar = jTable1.getValueAt(row, 2).toString();
         String tglCheckIn = jTable1.getValueAt(row, 3).toString();
         String tglCheckOut = jTable1.getValueAt(row, 4).toString();
         String totalBiaya = jTable1.getValueAt(row, 5).toString();
-        String statusBayar = jTable1.getValueAt(row, 6).toString();
+        String dpDibayar = jTable1.getValueAt(row, 6).toString();    
+        String sisaTagihan = jTable1.getValueAt(row, 7).toString();  
+        String statusBayar = jTable1.getValueAt(row, 8).toString();  
 
-        String namaTamu = "-";
-        String nomorKamar = "-";
-        String tipeKamar = "-";
+        String namaTamu = "-", nomorKamar = "-", tipeKamar = "-";
 
         try {
             java.sql.Connection conn = koneksi.getkoneksi();
             
-            // 3. Cari Nama Tamu ke Database berdasarkan ID
+            // Cari Nama Tamu
             java.sql.PreparedStatement pstTamu = conn.prepareStatement("SELECT nama_tamu FROM tamu WHERE id_tamu=?");
             pstTamu.setString(1, idTamu);
             java.sql.ResultSet rsTamu = pstTamu.executeQuery();
-            if (rsTamu.next()) {
-                namaTamu = rsTamu.getString("nama_tamu");
-            }
+            if (rsTamu.next()) namaTamu = rsTamu.getString("nama_tamu");
 
-            // 4. Cari Detail Kamar (Nomor & Tipe) ke Database berdasarkan ID
+            // Cari Detail Kamar
             java.sql.PreparedStatement pstKamar = conn.prepareStatement("SELECT nomor_kamar, tipe_kamar FROM kamar WHERE id_kamar=?");
             pstKamar.setString(1, idKamar);
             java.sql.ResultSet rsKamar = pstKamar.executeQuery();
@@ -535,7 +540,7 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
                 tipeKamar = rsKamar.getString("tipe_kamar");
             }
 
-            // 5. Meracik Desain HTML Invoice (Struk Profesional)
+            // Meracik Desain HTML Invoice
             StringBuilder html = new StringBuilder();
             html.append("<html><head><title>Invoice - ").append(idReservasi).append("</title>");
             html.append("<style>");
@@ -551,72 +556,49 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
             html.append(".details-table th { background-color: #2c3e50; color: white; }");
             html.append(".total-row td { font-weight: bold; font-size: 16px; background-color: #ecf0f1; }");
             
-            // Logika Warna Status (Hijau jika Lunas, Merah jika Belum)
             String warnaStatus = statusBayar.equalsIgnoreCase("Lunas") ? "#27ae60" : "#e74c3c";
             html.append(".status { font-weight: bold; color: ").append(warnaStatus).append("; }");
-            
             html.append(".footer { text-align: center; margin-top: 40px; font-size: 13px; color: #95a5a6; border-top: 1px solid #eee; padding-top: 20px; }");
             html.append("</style></head><body>");
 
             html.append("<div class='invoice-box'>");
-            
-            // --- Bagian Kop (Header) ---
-            html.append("<div class='header'>");
-            html.append("<h1>SLEEPWELL HOTEL</h1>");
-            html.append("<p>Jl. Daan Mogot No. 123, Jakarta Raya</p>");
-            html.append("<p>Telp: (021) 12345678 | Email: info@sleepwell.com</p>");
-            html.append("</div>");
+            html.append("<div class='header'><h1>SLEEPWELL HOTEL</h1><p>Jl. Daan Mogot No. 123, Jakarta Raya</p><p>Telp: (021) 12345678 | Email: info@sleepwell.com</p></div>");
 
-            // --- Bagian Info Transaksi & Tamu ---
             html.append("<table class='info-table'><tr>");
             html.append("<td><b>INVOICE KEPADA:</b><br><span style='font-size: 18px;'>").append(namaTamu).append("</span><br>ID Tamu: ").append(idTamu).append("</td>");
-            html.append("<td style='text-align: right;'><b>No. Reservasi:</b> #").append(idReservasi).append("<br>");
-            html.append("<b>Tanggal Cetak:</b> ").append(new java.text.SimpleDateFormat("dd MMM yyyy HH:mm").format(new java.util.Date())).append("</td>");
+            html.append("<td style='text-align: right;'><b>No. Reservasi:</b> #").append(idReservasi).append("<br><b>Tanggal Cetak:</b> ").append(new java.text.SimpleDateFormat("dd MMM yyyy HH:mm").format(new java.util.Date())).append("</td>");
             html.append("</tr></table>");
 
-            // --- Bagian Detail Tagihan (Tabel) ---
-            html.append("<table class='details-table'>");
-            html.append("<thead><tr><th>Deskripsi Pesanan</th><th>Check-In</th><th>Check-Out</th><th>Subtotal</th></tr></thead>");
-            html.append("<tbody><tr>");
+            html.append("<table class='details-table'><thead><tr><th>Deskripsi Pesanan</th><th>Check-In</th><th>Check-Out</th><th>Subtotal</th></tr></thead><tbody><tr>");
             html.append("<td>Sewa Kamar Nomor: <b>").append(nomorKamar).append("</b><br><small>Tipe: ").append(tipeKamar).append("</small></td>");
-            html.append("<td>").append(tglCheckIn).append("</td>");
-            html.append("<td>").append(tglCheckOut).append("</td>");
-            html.append("<td>Rp ").append(totalBiaya).append("</td>");
-            html.append("</tr>");
+            html.append("<td>").append(tglCheckIn).append("</td><td>").append(tglCheckOut).append("</td><td>Rp ").append(totalBiaya).append("</td></tr>");
             
-            // --- Bagian Total & Status ---
             html.append("<tr class='total-row'><td colspan='3' style='text-align: right;'>TOTAL TAGIHAN</td><td>Rp ").append(totalBiaya).append("</td></tr>");
+            html.append("<tr><td colspan='3' style='text-align: right;'>DP DIBAYARKAN</td><td>Rp ").append(dpDibayar).append("</td></tr>");
+            html.append("<tr><td colspan='3' style='text-align: right;'>SISA TAGIHAN</td><td style='color: #e74c3c; font-weight: bold;'>Rp ").append(sisaTagihan).append("</td></tr>");
             html.append("<tr><td colspan='3' style='text-align: right;'>STATUS PEMBAYARAN</td><td class='status'>").append(statusBayar.toUpperCase()).append("</td></tr>");
             html.append("</tbody></table>");
 
-            // --- Bagian Footer ---
-            html.append("<div class='footer'>");
-            html.append("<p><i>Terima kasih telah mempercayakan penginapan Anda di Sleepwell Hotel.</i></p>");
-            html.append("</div>");
-
+            html.append("<div class='footer'><p><i>Terima kasih telah mempercayakan penginapan Anda di Sleepwell Hotel.</i></p></div>");
             html.append("</div></body></html>");
 
-            // 6. Simpan sebagai file HTML unik berdasarkan ID Reservasi
             java.io.File file = new java.io.File("Invoice_" + idReservasi + ".html");
             java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(file));
             bw.write(html.toString());
             bw.close();
 
-            // 7. Buka di Browser Bawaan untuk siap di-print
             int confirm = javax.swing.JOptionPane.showConfirmDialog(this, 
-                    "Invoice berhasil dibuat!\n\nApakah Anda ingin membuka struk di Browser sekarang?\n(Di browser, tekan Ctrl+P untuk Print atau Simpan sebagai PDF)", 
+                    "Invoice berhasil dibuat!\n\nApakah Anda ingin membuka struk di Browser sekarang?", 
                     "Cetak Invoice Sukses", javax.swing.JOptionPane.YES_NO_OPTION, javax.swing.JOptionPane.INFORMATION_MESSAGE);
 
             if (confirm == javax.swing.JOptionPane.YES_OPTION) {
                 if (java.awt.Desktop.isDesktopSupported()) {
                     java.awt.Desktop.getDesktop().browse(file.toURI());
-                } else {
-                    javax.swing.JOptionPane.showMessageDialog(this, "Silakan buka file 'Invoice_" + idReservasi + ".html' secara manual di folder project Anda.");
                 }
             }
 
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mencetak invoice: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            javax.swing.JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mencetak invoice: " + e.getMessage());
         }
     }//GEN-LAST:event_jButton6ActionPerformed
 

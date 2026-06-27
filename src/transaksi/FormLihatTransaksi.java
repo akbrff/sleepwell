@@ -312,20 +312,23 @@ public class FormLihatTransaksi extends javax.swing.JFrame {
         model.addColumn("Check-In");
         model.addColumn("Check-Out");
         model.addColumn("Total Biaya");
-        model.addColumn("DP Dibayar");    // KOLOM BARU
-        model.addColumn("Sisa Tagihan");  // KOLOM BARU
+        model.addColumn("DP Dibayar");    
+        model.addColumn("Sisa Tagihan");  
         model.addColumn("Status Bayar");
         model.addColumn("Status Reservasi");
 
         try {
-            java.sql.Connection conn = koneksi.getkoneksi();
-            String sql = "SELECT * FROM reservasi WHERE id_reservasi LIKE ? OR id_tamu LIKE ? OR id_kamar LIKE ?";
+            java.sql.Connection conn = koneksi.getkoneksi(); 
+            String sql = "SELECT * FROM reservasi WHERE id_reservasi LIKE ? OR id_tamu LIKE ? OR id_kamar LIKE ? OR status_pembayaran LIKE ? OR status_reservasi LIKE ?";
             java.sql.PreparedStatement pst = conn.prepareStatement(sql);
             
             String keyword = "%" + jTextField1.getText() + "%";
-            pst.setString(1, keyword);
-            pst.setString(2, keyword);
-            pst.setString(3, keyword);
+            
+            pst.setString(1, keyword); 
+            pst.setString(2, keyword); 
+            pst.setString(3, keyword); 
+            pst.setString(4, keyword); 
+            pst.setString(5, keyword); 
             
             java.sql.ResultSet rs = pst.executeQuery();
 

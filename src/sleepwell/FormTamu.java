@@ -424,32 +424,83 @@ public class FormTamu extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
-        if (jTextField1.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Pilih data dari tabel terlebih dahulu yang ingin dihapus!");
+            String idTamu = jTextField1.getText().trim();
+
+        if (idTamu.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Pilih data tamu dari tabel terlebih dahulu!"
+            );
             return;
         }
 
-        int konfirmasi = JOptionPane.showConfirmDialog(null, 
-                "Apakah Anda yakin ingin menghapus data tamu ini?", "Konfirmasi Hapus", 
-                JOptionPane.YES_NO_OPTION);
-                
-        if (konfirmasi == JOptionPane.YES_OPTION) {
-            try {
-                String sql = "DELETE FROM tamu WHERE id_tamu=?";
+        int konfirmasi = JOptionPane.showConfirmDialog(
+                this,
+                "Apakah Anda yakin ingin menghapus data tamu ini?",
+                "Konfirmasi Hapus",
+                JOptionPane.YES_NO_OPTION
+        );
 
-                Connection conn = koneksi.getkoneksi();
-                java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+        if (konfirmasi != JOptionPane.YES_OPTION) {
+            return;
+        }
 
-                pst.setString(1, jTextField1.getText()); // WHERE id_tamu
+        try {
+            Connection conn = koneksi.getkoneksi();
 
-                pst.execute();
-                JOptionPane.showMessageDialog(null, "Data Berhasil Dihapus");
+            // Mengecek apakah tamu sudah pernah dipakai pada data reservasi
+            String sqlCek = "SELECT COUNT(*) AS jumlah "
+                    + "FROM reservasi WHERE id_tamu=?";
+
+            PreparedStatement pstCek = conn.prepareStatement(sqlCek);
+            pstCek.setString(1, idTamu);
+
+            ResultSet rs = pstCek.executeQuery();
+
+            if (rs.next() && rs.getInt("jumlah") > 0) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Tamu ID " + idTamu + " tidak dapat dihapus.\n\n"
+                        + "Tamu ini sudah terhubung dengan data reservasi.\n"
+                        + "Data tamu harus tetap disimpan agar riwayat reservasi "
+                        + "tetap lengkap.",
+                        "Tamu Tidak Dapat Dihapus",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            // Hanya dijalankan apabila tamu belum dipakai pada reservasi
+            String sqlHapus = "DELETE FROM tamu WHERE id_tamu=?";
+            PreparedStatement pstHapus = conn.prepareStatement(sqlHapus);
+
+            pstHapus.setString(1, idTamu);
+
+            int hasil = pstHapus.executeUpdate();
+
+            if (hasil > 0) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Data tamu berhasil dihapus."
+                );
+
                 tampilData();
                 clearForm();
 
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, e.getMessage());
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Data tamu tidak ditemukan."
+                );
             }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Gagal menghapus data tamu: " + e.getMessage(),
+                    "Kesalahan",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 

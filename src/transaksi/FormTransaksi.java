@@ -252,6 +252,11 @@ public class FormTransaksi extends javax.swing.JFrame {
         });
 
         jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox3ActionPerformed(evt);
+            }
+        });
 
         jTextField2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -324,6 +329,11 @@ public class FormTransaksi extends javax.swing.JFrame {
 
         jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Check-in", "Booking" }));
 
+        jTextField5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField5ActionPerformed(evt);
+            }
+        });
         jTextField5.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextField5KeyReleased(evt);
@@ -333,6 +343,11 @@ public class FormTransaksi extends javax.swing.JFrame {
         jLabel15.setText("Down Payment :");
 
         jTextField6.setEditable(false);
+        jTextField6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField6ActionPerformed(evt);
+            }
+        });
 
         jLabel16.setText("Sisa Tagihan :");
 
@@ -555,7 +570,41 @@ public class FormTransaksi extends javax.swing.JFrame {
         String dpBayar = jTextField5.getText(); // Pastikan jTextField5 adalah input DP
         String sisaTagihan = jTextField6.getText(); // Pastikan jTextField6 adalah output Sisa
         String statusBayar = jComboBox3.getSelectedItem().toString();
-        String statusReservasi = jComboBox4.getSelectedItem().toString(); 
+        String statusReservasi = jComboBox4.getSelectedItem().toString();
+        
+        try {
+            double total = Double.parseDouble(totalBiaya.trim());
+            double dp = Double.parseDouble(dpBayar.trim());
+
+            // Jika DP sudah sama atau lebih besar dari total biaya,
+            // status wajib menjadi Lunas
+            if (dp >= total && total > 0) {
+
+                if (statusBayar.equals("Down Payment")) {
+                    jComboBox3.setSelectedItem("Lunas");
+                    jTextField6.setText("0");
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Down Payment sudah sama dengan Total Biaya.\n\n"
+                            + "Status pembayaran harus menjadi Lunas.\n"
+                            + "Status telah diubah menjadi Lunas, lalu klik SIMPAN kembali.",
+                            "Status Pembayaran Diubah",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                    return;
+                }
+            }
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Total Biaya dan Down Payment harus berupa angka!",
+                    "Input Tidak Valid",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
 
         if (tamuDipilih.contains("--") || kamarDipilih.contains("--")) {
             javax.swing.JOptionPane.showMessageDialog(this, "Silakan pilih Tamu dan Kamar terlebih dahulu!");
@@ -654,44 +703,52 @@ public class FormTransaksi extends javax.swing.JFrame {
     private void jTextField5KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField5KeyReleased
         // TODO add your handling code here:
         try {
-    
-            String strTotal = jTextField4.getText();
-            String strDP = jTextField5.getText();
+            String strTotal = jTextField4.getText().trim();
+            String strDP = jTextField5.getText().trim();
 
-            // Cek jika field total biaya kosong, jangan dihitung
             if (strTotal.isEmpty()) {
-                return; 
+                return;
             }
 
             if (strDP.isEmpty()) {
                 strDP = "0";
             }
 
-            int totalBiaya = Integer.parseInt(strTotal);
-            int dp = Integer.parseInt(strDP);
+            double totalBiaya = Double.parseDouble(strTotal);
+            double dp = Double.parseDouble(strDP);
 
-            // Rumus hitung sisa
-            int sisa = totalBiaya - dp;
+            double sisa = totalBiaya - dp;
 
-            // Jika DP lebih besar dari total, sisa dianggap 0 (Lunas)
-            if (sisa < 0) sisa = 0;
+            // DP tidak boleh lebih besar dari total biaya
+            if (sisa < 0) {
+                sisa = 0;
+            }
 
-            // Tampilkan hasil ke jTextField6
             jTextField6.setText(String.valueOf(sisa));
 
-            // Logika Status Bayar (jComboBox3)
-            if (dp == 0) {
-                jComboBox3.setSelectedItem("Belum Bayar");
-            } else if (dp >= totalBiaya) {
+            // Menyesuaikan status pembayaran otomatis
+            if (dp >= totalBiaya && totalBiaya > 0) {
                 jComboBox3.setSelectedItem("Lunas");
             } else {
-                jComboBox3.setSelectedItem("DP");
+                jComboBox3.setSelectedItem("Down Payment");
             }
 
         } catch (NumberFormatException e) {
-            // Jika yang diketik bukan angka, abaikan
+            jTextField6.setText("");
         }
     }//GEN-LAST:event_jTextField5KeyReleased
+
+    private void jTextField5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField5ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField5ActionPerformed
+
+    private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox3ActionPerformed
+
+    private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField6ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField6ActionPerformed
 
     /**
      * @param args the command line arguments

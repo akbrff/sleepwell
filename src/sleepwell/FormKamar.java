@@ -422,30 +422,87 @@ public class FormKamar extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-        if (jTextField1.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Pilih data dari tabel terlebih dahulu yang ingin dihapus!");
+        // TODO add your handling code here:                                       
+        String idKamar = jTextField1.getText().trim();
+
+        if (idKamar.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Pilih data kamar dari tabel terlebih dahulu!",
+                    "Peringatan",
+                    JOptionPane.WARNING_MESSAGE
+            );
             return;
         }
 
-        int konfirmasi = JOptionPane.showConfirmDialog(null, 
-                "Apakah Anda yakin ingin menghapus data kamar ini?", "Konfirmasi Hapus", 
-                JOptionPane.YES_NO_OPTION);
-                
-        if (konfirmasi == JOptionPane.YES_OPTION) {
-            try {
-                String sql = "DELETE FROM kamar WHERE id_kamar=?";
-                Connection conn = koneksi.getkoneksi();
-                java.sql.PreparedStatement pst = conn.prepareStatement(sql);
-                pst.setString(1, jTextField1.getText());
+        int konfirmasi = JOptionPane.showConfirmDialog(
+                this,
+                "Apakah Anda yakin ingin menghapus data kamar ini?",
+                "Konfirmasi Hapus",
+                JOptionPane.YES_NO_OPTION
+        );
 
-                pst.execute();
-                JOptionPane.showMessageDialog(null, "Data Kamar Berhasil Dihapus");
+        if (konfirmasi != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            Connection conn = koneksi.getkoneksi();
+
+            // Mengecek apakah kamar sudah dipakai dalam data reservasi
+            String sqlCek = "SELECT COUNT(*) FROM reservasi WHERE id_kamar=?";
+            PreparedStatement pstCek = conn.prepareStatement(sqlCek);
+            pstCek.setString(1, idKamar);
+
+            ResultSet rs = pstCek.executeQuery();
+
+            if (rs.next() && rs.getInt(1) > 0) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Kamar ID " + idKamar + " tidak dapat dihapus.\n\n"
+                        + "Kamar ini sudah terhubung dengan data reservasi.\n"
+                        + "Ubah status kamar jika kamar sudah tidak digunakan,\n"
+                        + "agar riwayat reservasi tetap tersimpan.",
+                        "Kamar Tidak Dapat Dihapus",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            // Dijalankan hanya jika kamar belum dipakai dalam reservasi
+            String sqlHapus = "DELETE FROM kamar WHERE id_kamar=?";
+            PreparedStatement pstHapus = conn.prepareStatement(sqlHapus);
+            pstHapus.setString(1, idKamar);
+
+            int hasil = pstHapus.executeUpdate();
+
+            if (hasil > 0) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Data kamar berhasil dihapus.",
+                        "Berhasil",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
                 tampilData();
                 clearForm();
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, e.getMessage());
+
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Data kamar tidak ditemukan.",
+                        "Peringatan",
+                        JOptionPane.WARNING_MESSAGE
+                );
             }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Gagal menghapus data kamar: " + e.getMessage(),
+                    "Kesalahan",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
